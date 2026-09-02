@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="子供の睡眠時間（ベットに入った時間・寝た時間・起きた時間）を記録するWebアプリ">
+<meta name="theme-color" content="#1e2a5a">
+<title>ねんねログ - 子供の睡眠記録</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E%F0%9F%8C%99%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="app-header">
+  <div class="app-header__inner">
+    <h1 class="app-title"><span aria-hidden="true">🌙</span> ねんねログ</h1>
+    <div class="child-switch">
+      <label class="visually-hidden" for="child-select">お子さん</label>
+      <select id="child-select"></select>
+      <button type="button" id="child-add" class="btn btn--icon" title="お子さんを追加">＋</button>
+      <button type="button" id="child-rename" class="btn btn--icon" title="名前を変更">✎</button>
+      <button type="button" id="child-delete" class="btn btn--icon" title="お子さんを削除">🗑</button>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- 記録フォーム -->
+  <section class="card" aria-labelledby="form-heading">
+    <h2 id="form-heading" class="card__title">
+      <span id="form-mode-label">きろくする</span>
+    </h2>
+    <form id="record-form" novalidate>
+      <input type="hidden" id="record-id">
+
+      <div class="field">
+        <label for="f-date">日付（ベットに入った日）</label>
+        <div class="row">
+          <input type="date" id="f-date" required>
+          <button type="button" class="btn btn--ghost" data-shift-date="-1" title="前の日">◀</button>
+          <button type="button" class="btn btn--ghost" data-shift-date="1" title="次の日">▶</button>
+        </div>
+      </div>
+
+      <div class="time-grid">
+        <div class="field">
+          <label for="f-inbed">🛏 ベットに入った時間</label>
+          <div class="row">
+            <input type="time" id="f-inbed">
+            <button type="button" class="btn btn--now" data-now="f-inbed">今</button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="f-asleep">😴 寝た時間</label>
+          <div class="row">
+            <input type="time" id="f-asleep">
+            <button type="button" class="btn btn--now" data-now="f-asleep">今</button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="f-wake">☀️ 起きた時間</label>
+          <div class="row">
+            <input type="time" id="f-wake">
+            <button type="button" class="btn btn--now" data-now="f-wake">今</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="f-note">メモ（任意）</label>
+        <input type="text" id="f-note" maxlength="120" placeholder="夜泣き・体調・寝かしつけの様子など">
+      </div>
+
+      <p class="preview" id="form-preview" aria-live="polite"></p>
+      <p class="form-error" id="form-error" role="alert"></p>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn--primary" id="submit-btn">保存する</button>
+        <button type="button" class="btn" id="cancel-edit" hidden>編集をやめる</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- サマリー -->
+  <section class="card" aria-labelledby="summary-heading">
+    <div class="card__head">
+      <h2 id="summary-heading" class="card__title">サマリー</h2>
+      <div class="range-switch" role="group" aria-label="集計期間">
+        <button type="button" class="chip" data-range="7">7日</button>
+        <button type="button" class="chip" data-range="30">30日</button>
+        <button type="button" class="chip" data-range="all">すべて</button>
+      </div>
+    </div>
+    <div class="stats" id="stats"></div>
+    <h3 class="chart__title">睡眠タイムライン</h3>
+    <div class="chart" id="chart"></div>
+    <p class="legend">
+      <span class="legend__item"><i class="swatch swatch--latency"></i>ベット〜入眠</span>
+      <span class="legend__item"><i class="swatch swatch--sleep"></i>睡眠</span>
+    </p>
+  </section>
+
+  <!-- 記録一覧 -->
+  <section class="card" aria-labelledby="list-heading">
+    <div class="card__head">
+      <h2 id="list-heading" class="card__title">きろく一覧</h2>
+      <div class="tools">
+        <button type="button" class="btn btn--ghost" id="export-csv">CSV出力</button>
+        <button type="button" class="btn btn--ghost" id="export-json">バックアップ</button>
+        <button type="button" class="btn btn--ghost" id="import-json">復元</button>
+        <input type="file" id="import-file" accept="application/json,.json" hidden>
+      </div>
+    </div>
+    <div id="record-list"></div>
+  </section>
+
+  <footer class="app-footer">
+    <p>データはこの端末のブラウザ内（localStorage）にのみ保存されます。定期的に「バックアップ」で書き出しておくと安心です。</p>
+  </footer>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script src="app.js"></script>
+</body>
+</html>
